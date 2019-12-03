@@ -80,7 +80,17 @@ public class OrgConsoleController {
         view.addObject("search",OrgUserQuery.class.getName());
         return view;
     }
-    
+
+    /*页面*/
+
+    @GetMapping(MODEL + "/add.do")
+    @Function("org.query")
+    public ModelAndView add() {
+        ModelAndView view = new ModelAndView("/admin/org/add.html");
+        view.addObject("search", OrgQuery.class.getName());
+        return view;
+    }
+
     /**
      * 组织机构列表  分页
      * @param condtion 查询条件
