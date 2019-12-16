@@ -23,7 +23,7 @@ public class OrgUserQuery extends PageParam {
     @Query(name="职务明细",display=true,type=Query.TYPE_DICT,dict="",group="job_type")
     private String jobType1;
 	
-	private Long orgId;
+	private String orgId;
 	
 	
 	public String getCode() {
@@ -38,10 +38,10 @@ public class OrgUserQuery extends PageParam {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Long getOrgId() {
+	public String getOrgId() {
 		return orgId;
 	}
-	public void setOrgId(Long orgId) {
+	public void setOrgId(String orgId) {
 		this.orgId = orgId;
 	}
 	public String getState() {

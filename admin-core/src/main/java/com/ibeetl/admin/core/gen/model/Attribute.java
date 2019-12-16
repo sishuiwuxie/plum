@@ -83,7 +83,7 @@ public class Attribute {
 
 	public boolean isDateRange() {
 		for(Verify verify: verifyList) {
-			if(verify.getName().equals("dateRange")) {
+			if("dateRange".equals(verify.getName())) {
 				return true;
 			}
 		}

@@ -1,30 +1,5 @@
 package com.ibeetl.admin.console.web;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.beetl.sql.core.engine.PageQuery;
-import org.jxls.common.Context;
-import org.jxls.util.JxlsHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.ibeetl.admin.console.service.OrgConsoleService;
 import com.ibeetl.admin.console.service.RoleConsoleService;
 import com.ibeetl.admin.console.service.UserConsoleService;
@@ -44,15 +19,32 @@ import com.ibeetl.admin.core.util.PlatformException;
 import com.ibeetl.admin.core.util.ValidateConfig;
 import com.ibeetl.admin.core.util.enums.GeneralStateEnum;
 import com.ibeetl.admin.core.web.JsonResult;
+import org.beetl.sql.core.engine.PageQuery;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户管理接口
- * 
+ *
  * @author xiandafu
  */
 @Controller
 public class UserConsoleController {
-	private final Log log = LogFactory.getLog(this.getClass());
 	private static final String MODEL = "/admin/user";
 
 	@Autowired
@@ -67,9 +59,9 @@ public class UserConsoleController {
 	OrgConsoleService orgConsoleService;
 	@Autowired
 	FileService fileService;
-	
 
-   
+
+
 
 	/* 页面 */
 
@@ -131,7 +123,7 @@ public class UserConsoleController {
 	@Function("user.delete")
 	@ResponseBody
 	public JsonResult delete(String ids) {
-		List<Long> dels = ConvertUtil.str2longs(ids);
+		List<String> dels = ConvertUtil.str2Strs(ids);
 		userConsoleService.batchDelSysUser(dels);
 		return JsonResult.success();
 	}
@@ -139,7 +131,7 @@ public class UserConsoleController {
 	@PostMapping(MODEL + "/update.json")
 	@Function("user.update")
 	@ResponseBody
-	public JsonResult update(@Validated(ValidateConfig.UPDATE.class)  CoreUser user) {
+	public JsonResult update(@Validated(ValidateConfig.UPDATE.class) CoreUser user) {
 		boolean success = userConsoleService.updateTemplate(user);
 		if (success) {
 			this.platformService.clearFunctionCache();
@@ -152,7 +144,7 @@ public class UserConsoleController {
 	@PostMapping(MODEL + "/add.json")
 	@Function("user.add")
 	@ResponseBody
-	public JsonResult<Long> add(@Validated(ValidateConfig.ADD.class) CoreUser user) {
+	public JsonResult<String> add(@Validated(ValidateConfig.ADD.class) CoreUser user) {
 		if (!platformService.isAllowUserName(user.getCode())) {
 			return JsonResult.failMessage("不允许的注册名字 " + user.getCode());
 		}
@@ -172,17 +164,17 @@ public class UserConsoleController {
 	@PostMapping(MODEL + "/list.json")
 	@Function("user.query")
 	@ResponseBody
-	public JsonResult<PageQuery<CoreUser>> index(UserQuery condtion) {
+	public JsonResult<PageQuery<CoreUser>> index(UserQuery condition) {
 
-		PageQuery<CoreUser> page = condtion.getPageQuery();
-		userConsoleService.queryByCondtion(page);
+		PageQuery<CoreUser> page = condition.getPageQuery();
+		userConsoleService.queryByCondition(page);
 		return JsonResult.success(page);
 	}
 
 	@PostMapping(MODEL + "/list/condition.json")
 	@Function("user.query")
 	@ResponseBody
-	public JsonResult<List<Map<String, Object>>> indexCondtion() {
+	public JsonResult<List<Map<String, Object>>> indexCondition() {
 		List<Map<String, Object>> list = AnnotationUtil.getInstance().getAnnotations(Query.class, UserQuery.class);
 		return JsonResult.success(list);
 	}
@@ -192,10 +184,10 @@ public class UserConsoleController {
 	@ResponseBody
 	public JsonResult disableUser(String ids) {
 
-		List<Long> dels = ConvertUtil.str2longs(ids);
+		List<String> dels = ConvertUtil.str2Strs(ids);
 
 		userConsoleService.batchUpdateUserState(dels, GeneralStateEnum.DISABLE);
-		for (Long id : dels) {
+		for (String id : dels) {
 			CoreUser user = userConsoleService.queryById(id);
 			this.platformService.restUserSession(user.getCode());
 		}
@@ -205,7 +197,7 @@ public class UserConsoleController {
 
 	/**
 	 * 启用用户操作
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/enable.json")
@@ -213,7 +205,7 @@ public class UserConsoleController {
 	@ResponseBody
 	public JsonResult enableUser(String ids) {
 
-		List<Long> enables = ConvertUtil.str2longs(ids);
+		List<String> enables = ConvertUtil.str2Strs(ids);
 		userConsoleService.batchUpdateUserState(enables, GeneralStateEnum.ENABLE);
 		return JsonResult.success();
 
@@ -221,13 +213,13 @@ public class UserConsoleController {
 
 	/**
 	 * 管理员重置用户密码
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/changePassword.json")
 	@Function("user.reset")
 	@ResponseBody
-	public JsonResult changePassword(Long id, String password) {
+	public JsonResult changePassword(String id, String password) {
 
 		userConsoleService.resetPassword(id, password);
 		return new JsonResult().success();
@@ -235,9 +227,8 @@ public class UserConsoleController {
 
 	/**
 	 * 用户所有授权角色列表
-	 * 
-	 * @param id
-	 *            用户id
+	 *
+	 * @param id 用户id
 	 * @return
 	 */
 	@PostMapping(MODEL + "/role/list.json")
@@ -250,7 +241,7 @@ public class UserConsoleController {
 
 	/**
 	 * 用户添加授权角色页
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/role/add.json")
@@ -266,52 +257,46 @@ public class UserConsoleController {
 
 	/**
 	 * 删除用户角色授权
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/role/delete.json")
 	@Function("user.role")
 	@ResponseBody
 	public JsonResult delUserRole(String ids) {
-		List<Long> dels = ConvertUtil.str2longs(ids);
+		List<String> dels = ConvertUtil.str2Strs(ids);
 
 		userConsoleService.deleteUserRoles(dels);
 		this.platformService.clearFunctionCache();
 		return JsonResult.success();
 	}
-	
-	
+
 	@PostMapping(MODEL + "/excel/export.json")
 	@Function("user.export")
 	@ResponseBody
-	public JsonResult<String> export(HttpServletResponse response,UserQuery condtion) {
-		String excelTemplate ="excelTemplates/admin/user/user_collection_template.xls";
-		PageQuery<CoreUser> page = condtion.getPageQuery();
+	public JsonResult<String> export(HttpServletResponse response, UserQuery condition) {
+		String excelTemplate = "excelTemplates/admin/user/user_collection_template.xls";
+		PageQuery<CoreUser> page = condition.getPageQuery();
 		//取出全部符合条件的
 		page.setPageSize(Integer.MAX_VALUE);
 		page.setPageNumber(1);
 		page.setTotalRow(Integer.MAX_VALUE);
-		List<UserExcelExportData> users =userConsoleService.queryExcel(page);
-		try(InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(excelTemplate)) {
-	        if(is==null) {
-	        	throw new PlatformException("模板资源不存在："+excelTemplate);
-	        }
-	        FileItem item = fileService.createFileTemp("user_collection.xls");
-	        OutputStream os = item.openOutpuStream();
-	        Context context = new Context();
-            context.putVar("users", users);
-            JxlsHelper.getInstance().processTemplate(is, os, context);
-            //下载参考FileSystemContorller
-            return  JsonResult.success(item.getPath());
-	    } catch (IOException e) {
+		List<UserExcelExportData> users = userConsoleService.queryExcel(page);
+		try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(excelTemplate)) {
+			if (is == null) {
+				throw new PlatformException("模板资源不存在：" + excelTemplate);
+			}
+			FileItem item = fileService.createFileTemp("user_collection.xls");
+			OutputStream os = item.openOutputStream();
+			Context context = new Context();
+			context.putVar("users", users);
+			JxlsHelper.getInstance().processTemplate(is, os, context);
+			//下载参考FileSystemController
+			return JsonResult.success(item.getPath());
+		} catch (IOException e) {
 			throw new PlatformException(e.getMessage());
 		}
-		
+
 	}
-	
-	
-	
-	
-	
 
 }

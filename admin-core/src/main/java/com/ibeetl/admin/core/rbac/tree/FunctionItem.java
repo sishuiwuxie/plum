@@ -24,11 +24,13 @@ public class FunctionItem  implements TreeItem{
 		parent.children.add(this);
 	}
 	
+	@Override
 	public List<FunctionItem> getChildren(){
 		return this.children;
 	}
 	
-	public Long getId(){
+	@Override
+	public String getId(){
 		return sysFunction.getId();
 	}
 	
@@ -41,8 +43,8 @@ public class FunctionItem  implements TreeItem{
 	 * @param functionId
 	 * @return
 	 */
-	public FunctionItem findChild(long functionId){
-		if(sysFunction.getId()==functionId){
+	public FunctionItem findChild(String functionId){
+		if(sysFunction.getId().equals(functionId)){
 			return this;
 		}
 		for(FunctionItem item:children){
@@ -65,9 +67,9 @@ public class FunctionItem  implements TreeItem{
 		return all;
 	}
 	
-	public List<Long> findAllChildrenId(){
+	public List<String> findAllChildrenId(){
 		List<FunctionItem> items =findAllItem();
-		List<Long> children = new ArrayList<Long>();
+		List<String> children = new ArrayList<>();
 		for(FunctionItem item:items){
 			children.add(item.getId());
 		}
@@ -97,12 +99,15 @@ public class FunctionItem  implements TreeItem{
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		FunctionItem other = (FunctionItem) obj;
 		if (sysFunction == null) {
 			if (other.sysFunction != null)

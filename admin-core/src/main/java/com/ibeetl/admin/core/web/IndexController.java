@@ -49,7 +49,7 @@ public class IndexController {
 		CoreUser user = info.getUser();
 		CoreOrg currentOrg = info.getOrgs().get(0);
 		for (CoreOrg org : info.getOrgs()) {
-			if (org.getId() == user.getOrgId()) {
+			if (org.getId() .equals( user.getOrgId())) {
 				currentOrg = org;
 				break;
 			}
@@ -66,7 +66,7 @@ public class IndexController {
 	public ModelAndView index() {
 		ModelAndView view = new ModelAndView("/index.html");
 		CoreUser currentUser = platformService.getCurrentUser();
-		Long orgId = platformService.getCurrentOrgId();
+		String orgId = platformService.getCurrentOrgId();
 		MenuItem menuItem = platformService.getMenuItem(currentUser.getId(), orgId);
 		view.addObject("menus", menuItem);
 		return view;
@@ -84,7 +84,7 @@ public class IndexController {
 		return view;
 	}
 	@RequestMapping("/changeOrg.do")
-	public ModelAndView changeOrg(HttpServletRequest request,Long orgId) {
+	public ModelAndView changeOrg(HttpServletRequest request,String orgId) {
 		platformService.changeOrg(orgId);
 		ModelAndView view = new ModelAndView("redirect:/index.do");
 		return view;

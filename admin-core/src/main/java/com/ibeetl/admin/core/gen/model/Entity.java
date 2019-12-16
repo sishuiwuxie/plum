@@ -1,5 +1,7 @@
 package com.ibeetl.admin.core.gen.model;
 
+import com.ibeetl.admin.core.gen.BaseTarget;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +81,19 @@ public class Entity {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-	
+	public String getMethodName(){
+		return BaseTarget.upperFirst(this.getName());
+	}
+	public boolean colExists(String colName){
+		if(list==null){
+			return false;
+		}
+		return this.list.stream().map(Attribute::getColName)
+				.filter(a->colName.equalsIgnoreCase(a))
+				.findFirst()
+				.isPresent();
+
+	}
 	public List<Attribute> getGeneralList(){
 		List<Attribute> newList = new ArrayList<Attribute>();
 		for(Attribute attr:list) {

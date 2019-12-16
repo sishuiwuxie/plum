@@ -13,11 +13,11 @@ import java.util.List;
 public interface CoreRoleFunctionDao extends BaseMapper<CoreRoleFunction> {
 
 
-    List<CoreRoleFunction> getRoleFunction( Long userId, Long orgId,
+    List<CoreRoleFunction> getRoleFunction( String userId, String orgId,
                                          String code);
 
-    List<String> getRoleChildrenFunction(Long userId,  Long orgId,
-                                          Long parentId);
+    List<String> getRoleChildrenFunction(String userId,  String orgId,
+                                         String parentId);
 
 
 }

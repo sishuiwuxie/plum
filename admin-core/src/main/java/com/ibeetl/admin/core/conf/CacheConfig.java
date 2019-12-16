@@ -65,6 +65,7 @@ public class CacheConfig {
 	MessageListenerAdapter listenerAdapter(final TowLevelCacheManager cacheManager) {
 		return new MessageListenerAdapter(new MessageListener() {
 
+			@Override
 			public void onMessage(Message message, byte[] pattern) {
 				byte[] bs = message.getChannel();
 				try {

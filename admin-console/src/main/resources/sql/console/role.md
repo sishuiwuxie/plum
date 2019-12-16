@@ -1,4 +1,4 @@
-queryByCondtion
+queryByCondition
 ===
 
 	select

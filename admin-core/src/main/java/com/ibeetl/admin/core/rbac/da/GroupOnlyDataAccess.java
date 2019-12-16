@@ -25,13 +25,13 @@ public class GroupOnlyDataAccess implements DataAccess {
 	CorePlatformService platformService;
 
 	@Override
-	public DataAccessResullt getOrg(Long userId, Long orgId) {
+	public DataAccessResullt getOrg(String userId, String orgId) {
 		OrgItem root = platformService.buildOrg();
 		OrgItem company  = root.findChild(orgId);
 		OrgItem group = root.findParentOrgItem(DefaultDataAccessFactory.GROUP_TYPE);
 		//排除集团下的所有公司
 		List<OrgItem> all = group.findAllChildOrgItem(null,DefaultDataAccessFactory.COMPANY_TYPE);
-		List<Long> list = new ArrayList<Long>(all.size());
+		List<String> list = new ArrayList<>(all.size());
 		for(OrgItem org:all){
 			list.add(org.getId());
 		}

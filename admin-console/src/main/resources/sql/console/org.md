@@ -2,7 +2,7 @@ batchDelByIds
 ===
 	update core_org set u.del_flag = 1 where u.id in( #join(ids)#)
 
-queryByCondtion
+queryByCondition
 ===
 	select 
 	@pageTag(){
@@ -29,7 +29,7 @@ queryByCondtion
     @}
    
   
-queryUserByCondtion
+queryUserByCondition
 ===
 
 	 select 

@@ -1,7 +1,5 @@
 package com.ibeetl.admin.console.web.query;
 
-import java.util.Date;
-
 import com.ibeetl.admin.core.annotation.Query;
 import com.ibeetl.admin.core.web.query.PageParam;
 
@@ -34,11 +32,5 @@ public class WorkflowQuery extends PageParam {
 	public void setOrgIds(String orgIds) {
 		this.orgIds = orgIds;
 	}
-  
-    
-    
-    
-	
-    
 
 }

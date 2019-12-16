@@ -9,32 +9,32 @@ public class UserRoleQuery extends PageParam {
 
    
 	@Query(name="角色",display=true,type=Query.TYPE_CONTROL,control="role")
-    private Long roleId;
+    private String roleId;
     @Query(name="部门",display=true,type=Query.TYPE_CONTROL,control="org")
-    private Long orgId;
+    private String orgId;
 
-    private Long userId;
-    public Long getUserId() {
+    private String userId;
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public Long getRoleId() {
+    public String getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
 
-    public Long getOrgId() {
+    public String getOrgId() {
         return orgId;
     }
 
-    public void setOrgId(Long orgId) {
+    public void setOrgId(String orgId) {
         this.orgId = orgId;
     }
 }

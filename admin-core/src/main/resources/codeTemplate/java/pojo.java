@@ -20,12 +20,18 @@ import com.ibeetl.admin.core.entity.BaseEntity;
 import org.beetl.sql.core.annotatoin.InsertIgnore;
 import org.beetl.sql.core.annotatoin.Version;
 import org.beetl.sql.core.annotatoin.LogicDelete;
-
-
-/* 
+import lombok.EqualsAndHashCode;
+import lombok.Data;
+import org.beetl.sql.core.annotatoin.AssignID;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+/**
 * ${comment}
 * gen by Spring Boot2 Admin ${date(),"yyyy-MM-dd"}
 */
+\@Data
+\@ApiModel(value = "${comment}")
+\@EqualsAndHashCode(callSuper = false)
 public class ${className} extends BaseEntity{
 
     @for(attr in attrs){
@@ -34,8 +40,7 @@ public class ${className} extends BaseEntity{
 		@}
 		@if(attr.isId) {
     \@NotNull(message = "ID不能为空", groups =ValidateConfig.UPDATE.class)
-    \@SeqID(name = ORACLE_CORE_SEQ_NAME)
-    \@AutoID	
+    \@AssignID
 		@}
 		@if(isNotEmpty(attr.dictType)) {
     \@Dict(type="${attr.dictType}")
@@ -50,31 +55,13 @@ public class ${className} extends BaseEntity{
 	\@InsertIgnore
 	\@Version
 		@}
-
+	\@ApiModelProperty(value = "${attr.comment}")
     private ${attr.type} ${attr.name} ;
-	
+
 	@}
     public ${className}(){
     }
 
-    @for(attr in attrs){
-		@if(!isEmpty(attr.comment)){
-    /**${attr.comment}
-    *\@return 
-    */
-		@}
-    public ${attr.type} get${attr.methodName}(){
-        return  ${attr.name};
-    }
-		@if(!isEmpty(attr.comment)){
-    /**${attr.comment}
-    *\@param  ${attr.name}
-    */
-		@}
-    public void set${attr.methodName}(${attr.type} ${attr.name}){
-        this.${attr.name} = ${attr.name};
-    }
 
-    @}
 
 }

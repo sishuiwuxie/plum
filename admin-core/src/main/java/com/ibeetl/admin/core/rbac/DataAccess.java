@@ -8,7 +8,7 @@ import com.ibeetl.admin.core.service.CorePlatformService;
  *
  */
 public interface DataAccess {
-	 DataAccessResullt getOrg(Long userId,Long orgId );
+	 DataAccessResullt getOrg(String userId,String orgId );
 	 String getName();
 	 Integer getType();
 }

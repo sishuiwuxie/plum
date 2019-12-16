@@ -1,5 +1,6 @@
 package com.ibeetl.admin.console.web.query;
 
+import io.swagger.annotations.ApiModel;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,8 +10,9 @@ import com.ibeetl.admin.core.util.Tool;
 import com.ibeetl.admin.core.web.query.PageParam;
 
 /**
- * 审计查询条件
+ * 用户访问审计查询条件
  */
+@ApiModel(value = "用户访问审计查询条件")
 public class AuditQuery extends PageParam {
 
 	@Query(name = "功能名称", display = true,fuzzy=true)

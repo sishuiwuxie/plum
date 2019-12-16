@@ -25,11 +25,11 @@ public class ParentCorpDataAccess implements DataAccess {
 	CorePlatformService platformService;
 
 	@Override
-	public DataAccessResullt getOrg(Long userId, Long orgId) {
+	public DataAccessResullt getOrg(String userId, String orgId) {
 		OrgItem root = platformService.buildOrg();
 		OrgItem company = root.findAllChildOrgItem(DefaultDataAccessFactory.PARENT_CORP_TYPE).get(0);
 		List<OrgItem> all = company.findAllChildOrgItem();
-		List<Long> list = new ArrayList<Long>(all.size());
+		List<String> list = new ArrayList<>(all.size());
 		for(OrgItem org:all){
 			list.add(org.getId());
 		}

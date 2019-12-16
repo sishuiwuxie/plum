@@ -50,6 +50,8 @@ public class MavenProjectTarget extends BaseTarget {
 			 target = getSrcPath()+"/"+basePackagePath+"/service/"+name;
 		}else if (gen instanceof JavaControllerGen) {
 			 target = getSrcPath()+"/"+basePackagePath+"/web/"+name;
+		}else if (gen instanceof JavaEntityDTOGen) {
+			target = getSrcPath()+"/"+basePackagePath+"/entity/dto/"+name;
 		}
 		
 		if(target==null) {

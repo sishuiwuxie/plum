@@ -1,24 +1,17 @@
 package com.ibeetl.admin.core.web;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-
+import com.ibeetl.admin.core.gen.*;
+import com.ibeetl.admin.core.gen.model.Attribute;
+import com.ibeetl.admin.core.gen.model.Entity;
+import com.ibeetl.admin.core.service.CoreCodeGenService;
+import com.ibeetl.admin.core.util.PlatformException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.Template;
 import org.beetl.core.resource.ClasspathResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,23 +20,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.ibeetl.admin.core.gen.AutoGen;
-import com.ibeetl.admin.core.gen.HtmlGen;
-import com.ibeetl.admin.core.gen.JSGen;
-import com.ibeetl.admin.core.gen.JavaCodeGen;
-import com.ibeetl.admin.core.gen.MavenProjectTarget;
-import com.ibeetl.admin.core.gen.MdGen;
-import com.ibeetl.admin.core.gen.WebTarget;
-import com.ibeetl.admin.core.gen.model.Attribute;
-import com.ibeetl.admin.core.gen.model.Entity;
-import com.ibeetl.admin.core.service.CoreCodeGenService;
-import com.ibeetl.admin.core.util.PlatformException;
+import java.io.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Controller
 public class CoreCodeGenController {
-	private final Log log = LogFactory.getLog(this.getClass());
 	private static final String MODEL = "/core/codeGen";
-
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	CoreCodeGenService codeGenService;
 
@@ -53,14 +39,13 @@ public class CoreCodeGenController {
 		return view;
 
 	}
-	
+
 	@PostMapping(MODEL + "/refresh.json")
-    @ResponseBody
-    public JsonResult<Boolean> refresh() {
+	@ResponseBody
+	public JsonResult<Boolean> refresh() {
 		codeGenService.refresh();
 		return JsonResult.success();
 	}
-
 
 	@GetMapping(MODEL + "/tableDetail.do")
 	public ModelAndView tableDetail(String table) {
@@ -70,106 +55,110 @@ public class CoreCodeGenController {
 		return view;
 
 	}
-	
+
 	@GetMapping(MODEL + "/project.do")
-    public ModelAndView project() {
-        ModelAndView view = new ModelAndView("/core/codeGen/project.html");
-        File file = new  File(MavenProjectTarget.detectRootPath());
-        String root = file.getParent();
-        //设置生成项目为当前运行项目的上一级项目
-        view.addObject("path",root+File.separator+"sample");
-        view.addObject("basePackage","com.corp.xxx");
-        return view;
-      
-    }
-	
-    @PostMapping(MODEL + "/projectGen.json")
-    @ResponseBody
-    public JsonResult project(String path,String basePackage,String includeConsole) throws IOException {
-        //includeConsole 当前版本忽略，总是添加一个系统管理功能，可以在pom中移除console
-        
-        //生成maven项目结构
-        File maven = new  File(path);
-        maven.mkdirs();
-        File src = new File(maven,"src");
-        src.mkdirs();
-        File main = new File(src,"main");
-        main.mkdir();
-        File test = new File(src,"test");
-        test.mkdir();
-        File javsSource = new File(main,"java"); 
-        javsSource.mkdir();
-        File resource = new File(main,"resources"); 
-        resource.mkdir();
-        File sql = new File(resource,"sql"); 
-        sql.mkdir();
-        File staticFile = new File(resource,"static"); 
-        staticFile.mkdir();
-        File templatesFile = new File(resource,"templates"); 
-        templatesFile.mkdir();
-        
-        String codePath = basePackage.replace(".", "/");
-        File codeFile = new File(javsSource,codePath);
-        codeFile.mkdirs();
-        Configuration conf = Configuration.defaultConfiguration();
-        String tempalteRoot = "codeTemplate/maven/";
-        ClasspathResourceLoader loader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader(),tempalteRoot);
-        GroupTemplate gt = new GroupTemplate(loader,conf);
-        FileWriter fw = null;
-        
-        //先生成入口程序
-        Template mainJavaTempalte = gt.getTemplate("/main.java");
-        mainJavaTempalte.binding("basePackage", basePackage);
-        fw = new FileWriter(new File(codeFile,"MainApplication.java"));
-        mainJavaTempalte.renderTo(fw);
-       
-        
-        //生成pom文件
-        Template pomTemplate = gt.getTemplate("/pomTemplate.xml");
-        int index = basePackage.lastIndexOf(".");
-        String projectGrop = basePackage.substring(0, index);
-        String projectName = basePackage.substring(index+1);
-        pomTemplate.binding("group", projectGrop);
-        pomTemplate.binding("project", projectName);
-        fw = new FileWriter(new File(maven,"pom.xml"));
-        pomTemplate.renderTo(fw);
-        
-        //复制当前项目的配置文件
-        File config = copy(resource,"application.properties");
-        copy(resource,"beetl.properties");
-        copy(resource,"btsql-ext.properties");
-        copy(resource,"banner.txt");
-   
-        return JsonResult.success();
-    }
-    
-    
-    private File copy(File root,String fileName) throws IOException {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream input = loader.getResourceAsStream(fileName);
-        if(input==null) {
-            log.info("copy "+fileName+" error,不存在"); 
-            return null;
-        }
-        
-        File target = new File(root,fileName);
-        FileOutputStream output = new FileOutputStream(target);
-        try {
-                
-            byte[] buf = new byte[1024];        
-            int bytesRead;        
-            while ((bytesRead = input.read(buf)) > 0) {
-                output.write(buf, 0, bytesRead);
-            }
-         } finally {
-             input.close();
-             output.close();
-         }
-        return target;
-    }
-	
-	
-	
+	public ModelAndView project() {
+		ModelAndView view = new ModelAndView("/core/codeGen/project.html");
+		File file = new File(MavenProjectTarget.detectRootPath());
+		String root = file.getParent();
+		//设置生成项目为当前运行项目的上一级项目
+		view.addObject("path", root + File.separator + "sample");
+		view.addObject("basePackage", "com.corp.xxx");
+		return view;
+
+	}
+
+	@PostMapping(MODEL + "/projectGen.json")
+	@ResponseBody
+	public JsonResult project(String path, String basePackage, String includeConsole) throws IOException {
+		//includeConsole 当前版本忽略，总是添加一个系统管理功能，可以在pom中移除console
+
+		//生成maven项目结构
+		File maven = new File(path);
+		maven.mkdirs();
+		File src = new File(maven, "src");
+		src.mkdirs();
+		File main = new File(src, "main");
+		main.mkdir();
+		File test = new File(src, "test");
+		test.mkdir();
+		File javsSource = new File(main, "java");
+		javsSource.mkdir();
+		File resource = new File(main, "resources");
+		resource.mkdir();
+		File sql = new File(resource, "sql");
+		sql.mkdir();
+		File staticFile = new File(resource, "static");
+		staticFile.mkdir();
+		File templatesFile = new File(resource, "templates");
+		templatesFile.mkdir();
+
+		String codePath = basePackage.replace(".", "/");
+		File codeFile = new File(javsSource, codePath);
+		codeFile.mkdirs();
+		Configuration conf = Configuration.defaultConfiguration();
+		String tempalteRoot = "codeTemplate/maven/";
+		ClasspathResourceLoader loader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader(), tempalteRoot);
+		GroupTemplate gt = new GroupTemplate(loader, conf);
+		FileWriter fw = null;
+
+		//生成入口程序
+		Template mainJavaTemplate = gt.getTemplate("/main.java");
+		mainJavaTemplate.binding("basePackage", basePackage);
+		fw = new FileWriter(new File(codeFile, "MainApplication.java"));
+		mainJavaTemplate.renderTo(fw);
+		
+		
+		Template swaggerJavaTemplate = gt.getTemplate("/swagger.java");
+		swaggerJavaTemplate.binding("basePackage", basePackage);
+		fw = new FileWriter(new File(codeFile, "Swagger2.java"));
+		swaggerJavaTemplate.renderTo(fw);
+		
+		
+
+		//生成pom文件
+		Template pomTemplate = gt.getTemplate("/pomTemplate.xml");
+		int index = basePackage.lastIndexOf(".");
+		String projectGroup = basePackage.substring(0, index);
+		String projectName = basePackage.substring(index + 1);
+		pomTemplate.binding("group", projectGroup);
+		pomTemplate.binding("project", projectName);
+		pomTemplate.binding("basePackage", basePackage);
+		fw = new FileWriter(new File(maven, "pom.xml"));
+		pomTemplate.renderTo(fw);
+
+		//复制当前项目的配置文件
+		File config = copy(resource, "application.properties");
+		copy(resource, "beetl.properties");
+		copy(resource, "btsql-ext.properties");
+		copy(resource, "banner.txt");
+
+		return JsonResult.success();
+	}
+
+	private File copy(File root, String fileName) throws IOException {
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		InputStream input = loader.getResourceAsStream(fileName);
+		if (input == null) {
+			log.info("copy " + fileName + " error,不存在");
+			return null;
+		}
+
+		File target = new File(root, fileName);
+		FileOutputStream output = new FileOutputStream(target);
+		try {
+
+			byte[] buf = new byte[1024];
+			int bytesRead;
+			while ((bytesRead = input.read(buf)) > 0) {
+				output.write(buf, 0, bytesRead);
+			}
+		} finally {
+			input.close();
+			output.close();
+		}
+		return target;
+	}
 
 	@PostMapping(MODEL + "/table.json")
 	@ResponseBody
@@ -191,16 +180,16 @@ public class CoreCodeGenController {
 
 	@PostMapping(MODEL + "/gen.json")
 	@ResponseBody
-	public JsonResult gen(EntityInfo data,String path) {
-		Entity  entity = getEntitiyInfo(data);
+	public JsonResult gen(EntityInfo data, String path) {
+		Entity entity = getEntitiyInfo(data);
 		String urlBase = data.getUrlBase();
 		String basePackage = data.getBasePackage();
-		
+
 		MavenProjectTarget target = new MavenProjectTarget(entity, basePackage);
 		//生成到path目录下，按照maven工程解构生成
 		File file = new File(path);
-		if(!file.exists()) {
-		    throw new PlatformException("路径不存在 "+path);
+		if (!file.exists()) {
+			throw new PlatformException("路径不存在 " + path);
 		}
 		target.setTargetPath(path);
 		target.setUrlBase(urlBase);
@@ -210,38 +199,39 @@ public class CoreCodeGenController {
 
 		HtmlGen htmlGen = new HtmlGen();
 		htmlGen.make(target, entity);
-		String  preffix =  urlBase.replace('/', '.');
-		String basicFunctionCode = preffix+"."+entity.getCode();
-		JavaCodeGen javaGen = new JavaCodeGen(basePackage, entity,basicFunctionCode);
+		String preffix = urlBase.replace('/', '.');
+		String basicFunctionCode = preffix + "." + entity.getCode();
+		JavaCodeGen javaGen = new JavaCodeGen(basePackage, entity, basicFunctionCode);
 		javaGen.make(target, entity);
 
 		MdGen mdGen = new MdGen();
 		mdGen.make(target, entity);
-		if(entity.isAutoAddMenu()||entity.isAutoAddFunction()) {
+		if (entity.isAutoAddMenu() || entity.isAutoAddFunction()) {
 			//自动增加功能点
-			long  functionId = this.codeGenService.insertFunction(entity, urlBase);
-			if(entity.isAutoAddMenu()) {
+			String functionId = this.codeGenService.insertFunction(entity, urlBase);
+			//wd:functionid可能为空字符串或者null
+			//为null表示重复 原作者这里可能有一个bug
+			//重复的话是否要insertMenu未知
+			if (functionId != null && entity.isAutoAddMenu()) {
 				this.codeGenService.insertMenu(functionId, entity, urlBase);
 			}
 		}
-		
-		
-		
+
 		return JsonResult.success();
 
 	}
-	
+
 	@PostMapping(MODEL + "/getPath.json")
-    @ResponseBody
-    public JsonResult<String> getPath() {
-	    String path = MavenProjectTarget.detectRootPath();
-	    return JsonResult.success(path);
+	@ResponseBody
+	public JsonResult<String> getPath() {
+		String path = MavenProjectTarget.detectRootPath();
+		return JsonResult.success(path);
 	}
 
 	@PostMapping(MODEL + "/html.json")
 	@ResponseBody
 	public JsonResult<Map<String, String>> html(EntityInfo data) {
-		
+
 		Entity entity = getEntitiyInfo(data);
 		String urlBase = data.getUrlBase();
 		String basePackage = data.getBasePackage();
@@ -258,11 +248,11 @@ public class CoreCodeGenController {
 		return JsonResult.success(content);
 
 	}
-	
+
 	@PostMapping(MODEL + "/js.json")
 	@ResponseBody
 	public JsonResult<Map<String, String>> js(EntityInfo data) {
-		
+
 		Entity entity = getEntitiyInfo(data);
 		String urlBase = data.getUrlBase();
 		String basePackage = data.getBasePackage();
@@ -279,20 +269,20 @@ public class CoreCodeGenController {
 		return JsonResult.success(content);
 
 	}
-	
+
 	@PostMapping(MODEL + "/java.json")
 	@ResponseBody
 	public JsonResult<Map<String, String>> javaCode(EntityInfo data) {
-		
+
 		Entity entity = getEntitiyInfo(data);
 		String urlBase = data.getUrlBase();
 		String basePackage = data.getBasePackage();
 		WebTarget webTarget = new WebTarget(entity, basePackage);
 		webTarget.setUrlBase(urlBase);
-		
-		String  preffix =  urlBase.replace('/', '.');
-		String basicFunctionCode = preffix+"."+entity.getCode();
-		JavaCodeGen javaGen = new JavaCodeGen(basePackage,entity,basicFunctionCode);
+
+		String preffix = urlBase.replace('/', '.');
+		String basicFunctionCode = preffix + "." + entity.getCode();
+		JavaCodeGen javaGen = new JavaCodeGen(basePackage, entity, basicFunctionCode);
 		javaGen.make(webTarget, entity);
 		Map<String, String> content = new HashMap<String, String>();
 		for (Entry<Object, String> entry : webTarget.map.entrySet()) {
@@ -300,16 +290,15 @@ public class CoreCodeGenController {
 			String code = entry.getValue();
 			content.put(gen.getName(), code);
 		}
-		
-		
+
 		return JsonResult.success(content);
 
 	}
-	
+
 	@PostMapping(MODEL + "/sql.json")
 	@ResponseBody
 	public JsonResult<Map<String, String>> sql(EntityInfo data) {
-		
+
 		Entity entity = getEntitiyInfo(data);
 		String urlBase = data.getUrlBase();
 		String basePackage = data.getBasePackage();
@@ -326,7 +315,7 @@ public class CoreCodeGenController {
 		return JsonResult.success(content);
 
 	}
-	
+
 	private Entity getEntitiyInfo(EntityInfo data) {
 		Entity info = data.getEntity();
 		String urlBase = data.getUrlBase();
@@ -341,26 +330,22 @@ public class CoreCodeGenController {
 		entity.setAutoAddFunction(info.isAutoAddFunction());
 		entity.setAutoAddMenu(info.isAutoAddFunction());
 		for (int i = 0; i < entity.getList().size(); i++) {
-		    Attribute attr = entity.getList().get(i);
-		    attr.setDisplayName(info.getList().get(i).getDisplayName());
-		    attr.setShowInQuery(info.getList().get(i).isShowInQuery());
-		    attr.setDictType(info.getList().get(i).getDictType());
-		    attr.setVerifyList(info.getList().get(i).getVerifyList());
-		    if(attr.getName().equals(data.getNameAttr())) {
-		        entity.setNameAttribute(attr);
-		    }
+			Attribute attr = entity.getList().get(i);
+			attr.setDisplayName(info.getList().get(i).getDisplayName());
+			attr.setShowInQuery(info.getList().get(i).isShowInQuery());
+			attr.setDictType(info.getList().get(i).getDictType());
+			attr.setVerifyList(info.getList().get(i).getVerifyList());
+			if (attr.getName().equals(data.getNameAttr())) {
+				entity.setNameAttribute(attr);
+			}
 		}
-		
+
 		if (StringUtils.isEmpty(entity.getCode()) || StringUtils.isEmpty(entity.getSystem())) {
 			throw new PlatformException("code,system不能为空");
 		}
-		
-		
+
 		return entity;
 	}
-	
-
-	
 
 	@GetMapping(MODEL + "/{table}/test.json")
 	@ResponseBody
@@ -372,7 +357,6 @@ public class CoreCodeGenController {
 		entity.setDisplayName("博客");
 		entity.setTableName("CMS_BLOG");
 		entity.setSystem("console");
-		
 
 		Attribute idAttr = new Attribute();
 		idAttr.setColName("id");
@@ -437,15 +421,16 @@ public class CoreCodeGenController {
 
 		HtmlGen htmlGen = new HtmlGen();
 		htmlGen.make(target, entity);
-		String  preffix =  urlBase.replace('/', '.');
-		String basicFunctionCode = preffix+"."+entity.getCode();
-		JavaCodeGen javaGen = new JavaCodeGen(basePackage, entity,basicFunctionCode);
+		String preffix = urlBase.replace('/', '.');
+		String basicFunctionCode = preffix + "." + entity.getCode();
+		JavaCodeGen javaGen = new JavaCodeGen(basePackage, entity, basicFunctionCode);
 		javaGen.make(target, entity);
 
 		MdGen mdGen = new MdGen();
 		mdGen.make(target, entity);
 
 	}
+
 
 }
 
@@ -454,7 +439,6 @@ class EntityInfo {
 	String urlBase;
 	String basePackage;
 	String nameAttr;
-
 
 	public Entity getEntity() {
 		return entity;
@@ -480,14 +464,12 @@ class EntityInfo {
 		this.basePackage = basePackage;
 	}
 
-    public String getNameAttr() {
-        return nameAttr;
-    }
+	public String getNameAttr() {
+		return nameAttr;
+	}
 
-    public void setNameAttr(String nameAttr) {
-        this.nameAttr = nameAttr;
-    }
-
-   
+	public void setNameAttr(String nameAttr) {
+		this.nameAttr = nameAttr;
+	}
 
 }

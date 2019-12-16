@@ -1,107 +1,95 @@
 package com.ibeetl.admin.core.rbac.tree;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ibeetl.admin.core.entity.CoreMenu;
 
-public class MenuItem  implements TreeItem{
+import java.util.*;
+
+public class MenuItem implements TreeItem {
 	CoreMenu sysMenu = null;
 	List<MenuItem> children = new ArrayList<MenuItem>();
 	@JsonIgnore
 	MenuItem parent = null;
 	String name;
 	private Integer seq;
-	public MenuItem(CoreMenu sysMenu){
+
+	public MenuItem(CoreMenu sysMenu) {
 		this.sysMenu = sysMenu;
-		this.name = sysMenu!=null?sysMenu.getName():null;
+		this.name = sysMenu != null ? sysMenu.getName() : null;
 		this.seq = sysMenu.getSeq();
 	}
-	
-	
-	public void setParent(MenuItem parent){
-		this.parent = parent;
-		parent.children.add(this);
-	}
-	
-	public List<MenuItem> getChildren(){
+
+	@Override
+	public List<MenuItem> getChildren() {
 		return this.children;
 	}
-	
-	public Long getId(){
+
+	@Override
+	public String getId() {
 		return sysMenu.getId();
 	}
-	
-	public CoreMenu getData(){
+
+	public CoreMenu getData() {
 		return this.sysMenu;
 	}
-	
-	
-	public void filter(Set<Long> allows){
+
+	public void filter(Set<String> allows) {
 		Iterator<MenuItem> it = this.children.iterator();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			MenuItem item = it.next();
-			if(item.getChildren().size()==0&&!allows.contains(item.getData().getId())){
+			if (item.getChildren().size() == 0 && !allows.contains(item.getData().getId())) {
 				it.remove();
 			}
-			
-			if(item.getChildren().size()!=0){
+
+			if (item.getChildren().size() != 0) {
 				item.filter(allows);
-				if(item.getChildren().size()==0){
+				if (item.getChildren().size() == 0) {
 					it.remove();
 				}
 			}
-			
-			
-		
+
 		}
-		
+
 	}
-	
-	
+
 	/**
 	 * 查找某个指定的子功能
-	 * @param functionId
+	 *
+	 * @param menuId
 	 * @return
 	 */
-	public MenuItem findChild(Long menuId){
-		if(sysMenu.getId().equals(menuId)){
+	public MenuItem findChild(String menuId) {
+		if (sysMenu.getId().equals(menuId)) {
 			return this;
 		}
-		for(MenuItem item:children){
+		for (MenuItem item : children) {
 			MenuItem find = item.findChild(menuId);
-			if(find!=null){
+			if (find != null) {
 				return find;
 			}
 		}
 		return null;
-		
+
 	}
-	
+
 	/**
 	 * 查找所有的子菜单
+	 *
 	 * @return
 	 */
-	public List<MenuItem> findAllItem(){
+	public List<MenuItem> findAllItem() {
 		List<MenuItem> all = new LinkedList<>();
-		findAllChildItem(all,this);
+		findAllChildItem(all, this);
 		return all;
 	}
-	
-	
-	private void findAllChildItem(List<MenuItem> all,MenuItem parent){
-		for(MenuItem item:parent.children){
-			all.add(item);
-			findAllChildItem(all,item);
-		}
-		
-	}
-	
 
+	private void findAllChildItem(List<MenuItem> all, MenuItem parent) {
+		for (MenuItem item : parent.children) {
+			all.add(item);
+			findAllChildItem(all, item);
+		}
+
+	}
 
 	@Override
 	public int hashCode() {
@@ -111,15 +99,17 @@ public class MenuItem  implements TreeItem{
 		return result;
 	}
 
-
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		MenuItem other = (MenuItem) obj;
 		if (sysMenu == null) {
 			if (other.sysMenu != null)
@@ -129,38 +119,31 @@ public class MenuItem  implements TreeItem{
 		return true;
 	}
 
-
 	public MenuItem getParent() {
 		return parent;
 	}
 
+	public void setParent(MenuItem parent) {
+		this.parent = parent;
+		parent.children.add(this);
+	}
 
 	@Override
 	public String toString() {
-		return "MenuItem [sysMenu=" + sysMenu.getName() + ","+this.children.size()+"]";
+		return "MenuItem [sysMenu=" + sysMenu.getName() + "," + this.children.size() + "]";
 	}
-
 
 	@Override
 	public String getName() {
 		return this.name;
 	}
 
-
 	public Integer getSeq() {
 		return seq;
 	}
 
-
 	public void setSeq(Integer seq) {
 		this.seq = seq;
 	}
-
-
-
-	
-	
-	
-	
 
 }

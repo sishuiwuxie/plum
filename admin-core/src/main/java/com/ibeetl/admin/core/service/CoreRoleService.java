@@ -19,7 +19,6 @@ import com.ibeetl.admin.core.entity.CoreRole;
 @Transactional
 public class CoreRoleService extends CoreBaseService<CoreRole> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreRoleService.class);
 
     @Autowired
     private CoreRoleDao roleDao;

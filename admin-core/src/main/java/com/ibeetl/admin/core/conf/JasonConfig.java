@@ -56,6 +56,9 @@ public class JasonConfig {
 				PageQuery query = (PageQuery)(data);
 				gen.writeObjectField("count", query.getTotalRow());
 				gen.writeObjectField("data", query.getList());
+				gen.writeObjectField("pageNo", query.getPageNumber());
+				gen.writeObjectField("pageSize", query.getPageSize());
+				gen.writeObjectField("pageCount", query.getTotalPage());
 			}else {
 				
 				gen.writeObjectField("data", data);

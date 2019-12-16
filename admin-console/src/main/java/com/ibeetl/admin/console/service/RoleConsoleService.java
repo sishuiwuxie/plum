@@ -45,8 +45,7 @@ public class RoleConsoleService extends CoreBaseService<CoreRole> {
 
     /**
      * 根据删标记获取全部角色集合
-     * @param delFlagEnum 删除标记
-     * @return
+      * @return
      */
     public List<CoreRole> queryAllList() {
         return roleDao.all();
@@ -56,8 +55,8 @@ public class RoleConsoleService extends CoreBaseService<CoreRole> {
      * 根据条件查询
      * @param query
      */
-    public void queryByCondtion(PageQuery query) {
-        roleDao.queryByCondtion(query);
+    public void queryByCondition(PageQuery query) {
+        roleDao.queryByCondition(query);
         super.queryListAfter(query.getList());
     }
 
@@ -68,10 +67,10 @@ public class RoleConsoleService extends CoreBaseService<CoreRole> {
     	List<CoreUser> list = ret.getList();
     	//从缓存里取出组织机构名称
     	for(CoreUser user:list) {
-    		Long orgId = user.getOrgId();
-    		Integer orgId1 = (Integer)user.get("orgId1");
+		    String orgId = user.getOrgId();
+		    String orgId1 = (String)user.get("orgId1");
     		user.set("orgIdText", root.findChild(orgId).getName());
-    		user.set("orgId1Text", root.findChild((long)orgId1).getName());
+    		user.set("orgId1Text", root.findChild( orgId1).getName());
     		
     	}
     	//再次处理数据字典
@@ -93,7 +92,7 @@ public class RoleConsoleService extends CoreBaseService<CoreRole> {
     }
 
 
-    public boolean deleteById(List<Long> ids) {
+    public boolean deleteById(List<String> ids) {
         if (ids == null || ids.isEmpty()) {
             throw new PlatformException("删除数据ID不能为空");
         }

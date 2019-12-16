@@ -5,7 +5,7 @@ clearMenuFunction
 
 	update core_menu set FUNCTION_ID=null where FUNCTION_ID in (#join(functionIds)#)
 
-queryByCondtion
+queryByCondition
 ===============
 * 根据条件查询
 

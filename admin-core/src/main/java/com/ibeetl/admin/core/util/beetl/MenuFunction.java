@@ -20,7 +20,7 @@ public class MenuFunction implements Function {
 	
 	public Object call(Object[] paras, Context ctx) {
 		MenuItem tree = platFormService.buildMenu();
-		MenuItem item = tree.findChild((Long)paras[0]);
+		MenuItem item = tree.findChild((String)paras[0]);
 		return item.getName();
 		
 	}

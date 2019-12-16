@@ -6,9 +6,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ibeetl.admin.core.entity.CoreOrg;
+import org.apache.commons.lang3.StringUtils;
 
 public class OrgItem implements TreeItem  {
-	private Long id;
+	private String id;
 	private CoreOrg org;
 	@JsonIgnore
 	private OrgItem parent;
@@ -21,7 +22,7 @@ public class OrgItem implements TreeItem  {
 	}
 	
 	
-	public OrgItem findChild(Long orgId){
+	public OrgItem findChild(String orgId){
 		if(id.equals(orgId)){
 			return this;
 		}
@@ -42,7 +43,7 @@ public class OrgItem implements TreeItem  {
 		}
 		OrgItem parent = this;
 		while((parent=parent.getParent())!=null){
-			if(parent.getId()!=0&&parent.org.getType().equals(type)){
+			if(StringUtils.isNoneBlank(parent.getId())&&parent.org.getType().equals(type)){
 				return parent;
 			}
 		}
@@ -64,9 +65,9 @@ public class OrgItem implements TreeItem  {
 	 * 取得当前机构的所有子机构
 	 * @return
 	 */
-	public List<Long> findAllChildrenId(){
+	public List<String> findAllChildrenId(){
 		List<OrgItem> items =findAllChildOrgItem(null);
-		List<Long> children = new ArrayList<Long>();
+		List<String> children = new ArrayList<>();
 		for(OrgItem item:items){
 			children.add(item.getId());
 		}
@@ -132,12 +133,7 @@ public class OrgItem implements TreeItem  {
 			return false;
 		return true;
 	}
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
+
 	public CoreOrg getOrg() {
 		return org;
 	}
@@ -164,6 +160,14 @@ public class OrgItem implements TreeItem  {
 		return this.name;
 	}
 
+	@Override
+	public String getId() {
+		return id;
+	}
 
-		
+	public void setId(String id) {
+		this.id = id;
+	}
+
+
 }

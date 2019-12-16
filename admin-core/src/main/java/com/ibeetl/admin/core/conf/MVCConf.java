@@ -55,9 +55,9 @@ public class MVCConf implements WebMvcConfigurer, InitializingBean {
 //    String appName;
 
     // 开发用的模拟当前用户和机构
-    Long useId;
+    String useId;
 
-    Long orgId;
+    String orgId;
 
     String mvcTestPath;
 
@@ -98,8 +98,8 @@ public class MVCConf implements WebMvcConfigurer, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.useId = env.getProperty("user.id", Long.class);
-        this.orgId = env.getProperty("user.orgId", Long.class);
+        this.useId = env.getProperty("user.id", String.class);
+        this.orgId = env.getProperty("user.orgId", String.class);
         this.mvcTestPath = env.getProperty("mvc.test.path");
         Map<String, Object> var = new HashMap<>(5);
         String appName =  env.getProperty("app.name");

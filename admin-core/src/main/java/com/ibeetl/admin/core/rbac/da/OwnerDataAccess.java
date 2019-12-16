@@ -21,7 +21,7 @@ public class OwnerDataAccess implements DataAccess {
 	CorePlatformService platformService;
 
 	@Override
-	public DataAccessResullt getOrg(Long userId, Long orgId) {
+	public DataAccessResullt getOrg(String userId, String orgId) {
 		DataAccessResullt ret = new DataAccessResullt();
 		ret.setStatus(AccessType.OnlyUser);
 		ret.setUserIds(Arrays.asList(userId));

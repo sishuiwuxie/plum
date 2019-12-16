@@ -11,10 +11,10 @@ import com.ibeetl.admin.core.entity.CoreOrg;
 @SqlResource("core.coreOrg")
 public interface CoreOrgDao extends BaseMapper<CoreOrg> {
 
-    List<CoreOrg> queryOrgByUser(Long userId);
+    List<CoreOrg> queryOrgByUser(String userId);
 
  
-    List<String> queryAllOrgCode(List<Long> orgIds);
+    List<String> queryAllOrgCode(List<String> orgIds);
     
     @Sql("select * from core_org where parent_org_id is null")
     CoreOrg getRoot();

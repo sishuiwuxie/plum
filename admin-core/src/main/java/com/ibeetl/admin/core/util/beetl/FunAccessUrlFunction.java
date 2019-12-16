@@ -18,9 +18,10 @@ public class FunAccessUrlFunction implements Function {
 	CorePlatformService platFormService;
 	
 	
+	@Override
 	public Object call(Object[] paras, Context ctx) {
 		FunctionItem tree = platFormService.buildFunction();
-		FunctionItem item = tree.findChild((Long)paras[0]);
+		FunctionItem item = tree.findChild((String)paras[0]);
 		return item.getData().getAccessUrl();
 		
 	}

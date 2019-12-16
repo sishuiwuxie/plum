@@ -18,7 +18,7 @@ public class FunctionBuildUtil {
 	}
 	public static  FunctionItem buildOrgTree(List<CoreFunction> list){
 		CoreFunction root = new CoreFunction();
-		root.setId(0L);
+		root.setId("");
 		FunctionItem rootOrg = new  FunctionItem(root);
 		buildTreeNode(rootOrg,list);
 		return rootOrg;
@@ -26,10 +26,10 @@ public class FunctionBuildUtil {
 	
 	private static void buildTreeNode(FunctionItem parent,List<CoreFunction> list){
 		
-		long id = parent.getId();
+		String id = parent.getId();
 		List<CoreFunction> dels = new ArrayList<>();
 		for(CoreFunction SysFunction:list){
-			if(SysFunction.getParentId()!=null && SysFunction.getParentId()==id){
+			if(SysFunction.getParentId()!=null && SysFunction.getParentId().equals(id)){
 				FunctionItem item = new FunctionItem(SysFunction);
 				item.setParent(parent);
 				dels.add(SysFunction);

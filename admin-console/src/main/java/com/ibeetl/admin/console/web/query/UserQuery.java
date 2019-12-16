@@ -16,7 +16,7 @@ public class UserQuery extends PageParam {
 	@Query(name="名称",display=true,fuzzy=true)
 	private String name ;
 	@Query(name="部门",display=true,type=Query.TYPE_CONTROL,control="org")
-	private Long orgId;
+	private String orgId;
 	
 	@Query(name="状态",display=true,type=Query.TYPE_DICT,dict=CoreDictType.USER_STATE)
 	private String state;
@@ -46,10 +46,10 @@ public class UserQuery extends PageParam {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Long getOrgId() {
+	public String getOrgId() {
 		return orgId;
 	}
-	public void setOrgId(Long orgId) {
+	public void setOrgId(String orgId) {
 		this.orgId = orgId;
 	}
 	public String getState() {

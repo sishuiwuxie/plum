@@ -21,8 +21,8 @@ public class AuditConsoleService extends CoreBaseService<CoreAudit> {
 	 *
 	 * @param query
 	 */
-	public void queryByCondtion(PageQuery<CoreAudit> query) {
-		PageQuery<CoreAudit> ret = auditConsoleDao.queryByCondtion(query);
+	public void queryByCondition(PageQuery<CoreAudit> query) {
+		PageQuery<CoreAudit> ret = auditConsoleDao.queryByCondition(query);
 		queryListAfter(ret.getList());
 	}
 

@@ -22,9 +22,10 @@ public class OrgFunction implements Function {
 	CorePlatformService platFormService;
 	
 	
+	@Override
 	public Object call(Object[] paras, Context ctx) {
 		OrgItem tree = platFormService.buildOrg();
-		OrgItem item = tree.findChild((Long)paras[0]);
+		OrgItem item = tree.findChild((String)paras[0]);
 		return item.getName();
 		
 	}

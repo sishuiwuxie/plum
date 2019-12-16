@@ -34,14 +34,14 @@ public class OrgConsoleService extends CoreBaseService<CoreOrg> {
      * 根据条件查询
      * @param query
      */
-    public void queryByCondtion(PageQuery<CoreOrg> query) {
-        orgDao.queryByCondtion(query);
+    public void queryByCondition(PageQuery<CoreOrg> query) {
+        orgDao.queryByCondition(query);
         List<CoreOrg> list = query.getList();
         queryListAfter(list);
         OrgItem root = platformService.buildOrg();
         //处理父机构名称显示，没有用sql查询是考虑到跨数据库
         for(CoreOrg org:list) {
-        	Long parentId = org.getParentOrgId();
+	        String parentId = org.getParentOrgId();
         	OrgItem item = root.findChild(parentId);
         	String name = item!=null?item.getName():"";
         	org.set("parentOrgText", name);
@@ -49,7 +49,7 @@ public class OrgConsoleService extends CoreBaseService<CoreOrg> {
     }
     
     public void queryUserByCondition(PageQuery<CoreUser> query) {
-    	orgDao.queryUserByCondtion(query);
+    	orgDao.queryUserByCondition(query);
     	queryListAfter(query.getList());
     }
 
@@ -58,7 +58,7 @@ public class OrgConsoleService extends CoreBaseService<CoreOrg> {
      * 获取机构下面的所以机构
      * @param orgId 机构id
      */
-    public List<Long> getAllChildIdsByOrgId(Long orgId) {
+    public List<String> getAllChildIdsByOrgId(String orgId) {
         if (orgId == null)
             return null;
 
@@ -66,7 +66,7 @@ public class OrgConsoleService extends CoreBaseService<CoreOrg> {
         if (orgItem == null) {
             return null;
         }
-        List<Long> ids = orgItem.findAllChildrenId();
+        List<String> ids = orgItem.findAllChildrenId();
         if (ids == null) {
             ids = new ArrayList<>();
         }
@@ -76,11 +76,11 @@ public class OrgConsoleService extends CoreBaseService<CoreOrg> {
     }
     
     @Override
-    public boolean deleteById(List<Long> ids) {
+    public boolean deleteById(List<String> ids) {
     	OrgItem root = platformService.buildOrg();
         //检查子节点
     	
-        for (Long id : ids) {
+        for (String id : ids) {
         	OrgItem child = root.findChild(id);
         	if(child.getChildren().size()!=0){
         		throw new PlatformException("不能删除 "+child.getOrg().getName()+",还包含子机构");

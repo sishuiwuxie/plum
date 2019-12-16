@@ -4,8 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.WebApplicationInitializer;
+
 
 @SpringBootApplication
 @EnableCaching
@@ -16,7 +18,6 @@ public class MainApplication  extends SpringBootServletInitializer implements We
     	
     	SpringApplication.run(MainApplication.class, args);
     }
-
-
-
+	
+	
 }	

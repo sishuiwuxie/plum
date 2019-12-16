@@ -29,7 +29,7 @@ import com.ibeetl.admin.core.util.beetl.FunFunction;
 import com.ibeetl.admin.core.util.beetl.MenuFunction;
 import com.ibeetl.admin.core.util.beetl.OrgFunction;
 import com.ibeetl.admin.core.util.beetl.RoleFunction;
-import com.ibeetl.admin.core.util.beetl.SearchCondtionFunction;
+import com.ibeetl.admin.core.util.beetl.SearchConditionFunction;
 import com.ibeetl.admin.core.util.beetl.SysFunctionTreeFunction;
 import com.ibeetl.admin.core.util.beetl.UUIDFunction;
 import com.ibeetl.admin.core.util.beetl.XXSDefenderFormat;
@@ -62,7 +62,7 @@ public class BeetlConf {
     FileFunction fileFunction;
 
     @Autowired
-    SearchCondtionFunction searchCondtionFunction;
+    SearchConditionFunction searchConditionFunction;
 
     @Autowired
     DataAccessFactory dataAccessFactory;
@@ -82,6 +82,7 @@ public class BeetlConf {
     @Bean
     public WebSimulate getWebSimulate(GroupTemplate gt, ObjectMapper objectMapper) {
         return new WebSimulate(gt, new ObjectMapperJsonUtil(objectMapper)) {
+            @Override
             protected String getRenderPath(HttpServletRequest request) {
                 String defaultRenderPath = request.getServletPath();
                 return defaultRenderPath.replace(".do", ".html");
@@ -92,14 +93,15 @@ public class BeetlConf {
     @Bean
     public BeetlTemplateCustomize beetlTemplateCustomize() {
         return new BeetlTemplateCustomize() {
+            @Override
             public void customize(GroupTemplate groupTemplate) {
                 groupTemplate.registerFunctionPackage("platform", platFormService);
-                groupTemplate.registerFunctionPackage("queryCondtion", new QueryParser());
+                groupTemplate.registerFunctionPackage("queryCondition", new QueryParser());
                 groupTemplate.registerFunction("core.orgName", orgFunction);
                 groupTemplate.registerFunction("core.functionName", funFunction);
                 groupTemplate.registerFunction("core.funAccessUrl", funAccessUrlFunction);
                 groupTemplate.registerFunction("core.menuName", menuFunction);
-                groupTemplate.registerFunction("core.searchCondtion", searchCondtionFunction);
+                groupTemplate.registerFunction("core.searchCondition", searchConditionFunction);
                 groupTemplate.registerFunction("core.roles", roleFunction);
                 groupTemplate.registerFunction("core.file", fileFunction);
                 groupTemplate.registerFormat("xss", new XXSDefenderFormat());
@@ -110,8 +112,8 @@ public class BeetlConf {
 
                     @Override
                     public Boolean call(Object[] paras, Context ctx) {
-                        Long userId = platFormService.getCurrentUser().getId();
-                        Long orgId = platFormService.getCurrentOrgId();
+                        String userId = platFormService.getCurrentUser().getId();
+                        String orgId = platFormService.getCurrentOrgId();
                         String functionCode = (String) paras[0];
                         return platFormService.canAcessFunction(userId, orgId, functionCode);
                     }
@@ -166,6 +168,7 @@ public class BeetlConf {
     }
 
     static class StarterDebugInterceptor extends DebugInterceptor {
+        @Override
         protected boolean isSimple(String sqlId) {
             if (sqlId.indexOf("_gen_") != -1) {
                 return true;

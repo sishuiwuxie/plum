@@ -7,22 +7,22 @@ import java.util.List;
  *
  */
 public class DataAccessResullt {
-	private List<Long> userIds;
-	private List<Long> orgIds;
+	private List<String> userIds;
+	private List<String> orgIds;
 	//1 结果仅仅包含用户， 2 ，结果仅仅包含组织机构 3 结果匹配所有组织结构 4 结果不匹配任何组织机构
 	private AccessType status ;
 	
 	
-	public List<Long> getUserIds() {
+	public List<String> getUserIds() {
 		return userIds;
 	}
-	public void setUserIds(List<Long> userIds) {
+	public void setUserIds(List<String> userIds) {
 		this.userIds = userIds;
 	}
-	public List<Long> getOrgIds() {
+	public List<String> getOrgIds() {
 		return orgIds;
 	}
-	public void setOrgIds(List<Long> orgIds) {
+	public void setOrgIds(List<String> orgIds) {
 		this.orgIds = orgIds;
 	}
 	public AccessType getStatus() {

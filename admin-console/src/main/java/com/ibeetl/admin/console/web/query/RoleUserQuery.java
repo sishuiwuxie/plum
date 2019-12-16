@@ -13,7 +13,7 @@ public class RoleUserQuery extends PageParam {
     @Query(name = "名称", display = true)
     private String userName;
    
-    private Long roleId;
+    private String roleId;
 
 	public String getUserCode() {
 		return userCode;
@@ -31,11 +31,11 @@ public class RoleUserQuery extends PageParam {
 		this.userName = userName;
 	}
 
-	public Long getRoleId() {
+	public String getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(Long roleId) {
+	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
 

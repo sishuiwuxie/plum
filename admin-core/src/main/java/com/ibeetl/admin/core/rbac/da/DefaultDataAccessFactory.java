@@ -51,10 +51,12 @@ public class DefaultDataAccessFactory implements DataAccessFactory {
 		
 	}
 	
+	@Override
 	public DataAccess getDataAccess(Integer type){
 		return map.get(type);
 	}
 	
+	@Override
 	public List<DataAccess> all(){
 		return new ArrayList<DataAccess>(map.values());
 	}

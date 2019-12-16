@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.ibeetl.admin.core.util.UUIDUtil;
 import org.apache.catalina.User;
 import org.apache.commons.lang3.StringUtils;
 import org.beetl.sql.core.engine.PageQuery;
@@ -54,8 +55,8 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 	 *
 	 * @param query
 	 */
-	public void queryByCondtion(PageQuery<CoreUser> query) {
-		PageQuery<CoreUser> ret = userDao.queryByCondtion(query);
+	public void queryByCondition(PageQuery<CoreUser> query) {
+		PageQuery<CoreUser> ret = userDao.queryByCondition(query);
 		queryListAfter(ret.getList());
 	}
 
@@ -75,7 +76,8 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 		user.setState(GeneralStateEnum.ENABLE.getValue());
 		user.setPassword(passwordEncryptService.password(user.getPassword()));
 		user.setDelFlag(DelFlagEnum.NORMAL.getValue());
-		userDao.insert(user, true);
+		user.setId(UUIDUtil.uuid());
+		userDao.insert(user);
 		if(StringUtils.isNotEmpty(user.getAttachmentId())){
 		    //更新附件详细信息,关联到这个用户
 		    fileService.updateFile(user.getAttachmentId(), User.class.getSimpleName(), String.valueOf(user.getId()));
@@ -89,7 +91,7 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 	 *
 	 * @param userId
 	 */
-	public CoreUser queryUserById(Long userId) {
+	public CoreUser queryUserById(String userId) {
 		return userDao.unique(userId);
 	}
 
@@ -109,7 +111,7 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 	 * @param userId
 	 *            用户id
 	 */
-	public void delSysUser(Long userId) {
+	public void delSysUser(String userId) {
 		CoreUser user = queryUserById(userId);
 		if (user == null) {
 			throw new NoResourceException("用户不存在!");
@@ -130,7 +132,7 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 	 * @param userIds
 	 *            用户id
 	 */
-	public void batchDelSysUser(List<Long> userIds) {
+	public void batchDelSysUser(List<String> userIds) {
 		try {
 			userDao.batchDelUserByIds(userIds);
 		} catch (Exception e) {
@@ -145,17 +147,17 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 	 * @param userIds
 	 *            用户id
 	 */
-	public void batchUpdateUserState(List<Long> userIds, GeneralStateEnum stateEnum) {
+	public void batchUpdateUserState(List<String> userIds, GeneralStateEnum stateEnum) {
 		userDao.batchUpdateUserState(userIds, stateEnum);
 	}
 
 	/**
 	 * 重置用户密码
 	 *
-	 * @param uId
+	 * @param id
 	 * @param password
 	 */
-	public int resetPassword(Long id, String password) {
+	public int resetPassword(String id, String password) {
 		CoreUser user = new CoreUser();
 		user.setId(id);
 		user.setPassword(passwordEncryptService.password(password));
@@ -167,9 +169,9 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 		return userDao.queryUserRole(roleQuery.getUserId(), roleQuery.getOrgId(), roleQuery.getRoleId());
 	}
 
-	public void deleteUserRoles(List<Long> ids) {
+	public void deleteUserRoles(List<String> ids) {
 		// 考虑到这个操作较少使用，就不做批处理优化了
-		for (Long id : ids) {
+		for (String id : ids) {
 			sqlManager.deleteById(CoreUserRole.class, id);
 		}
 
@@ -186,7 +188,7 @@ public class UserConsoleService extends CoreBaseService<CoreUser> {
 	}
 	
 	public List<UserExcelExportData> queryExcel(PageQuery<CoreUser> query) {
-		PageQuery<CoreUser> ret = userDao.queryByCondtion(query);
+		PageQuery<CoreUser> ret = userDao.queryByCondition(query);
 		List<CoreUser> list = ret.getList();
 		OrgItem orgRoot = platformService.buildOrg();
 		List<UserExcelExportData> items = new ArrayList<>();

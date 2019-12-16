@@ -4,7 +4,7 @@ import com.ibeetl.admin.core.entity.CoreFunction;
 
 public class RoleDataAccessFunction extends CoreFunction {
 	private Integer dataAccessType;
-	private Long roleId;
+	private String roleId;
 
 	public Integer getDataAccessType() {
 		return dataAccessType;
@@ -14,11 +14,11 @@ public class RoleDataAccessFunction extends CoreFunction {
 		this.dataAccessType = dataAccessType;
 	}
 
-	public Long getRoleId() {
+	public String getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(Long roleId) {
+	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
 	

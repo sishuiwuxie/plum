@@ -8,6 +8,7 @@ import com.ibeetl.admin.core.service.CoreBaseService;
 import com.ibeetl.admin.core.service.CorePlatformService;
 import com.ibeetl.admin.core.util.PlatformException;
 
+import com.ibeetl.admin.core.util.UUIDUtil;
 import org.beetl.sql.core.engine.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,29 +29,30 @@ public class MenuConsoleService extends CoreBaseService<CoreMenu> {
     @Autowired
     CorePlatformService platformService;
 
-    public void queryByCondtion(PageQuery<CoreMenu> query) {
-        menuDao.queryByCondtion(query);
+    public void queryByCondition(PageQuery<CoreMenu> query) {
+        menuDao.queryByCondition(query);
         queryListAfter(query.getList());
     }
 
-    public Long saveMenu(CoreMenu menu) {
+    public String saveMenu(CoreMenu menu) {
         CoreMenu query = new CoreMenu();
         query.setCode(menu.getCode());
         long queryCount = menuDao.templateCount(query);
         if (queryCount > 0) {
             throw new PlatformException("菜单编码已存在");
         }
-        menuDao.insert(menu, true);
+        query.setId(UUIDUtil.uuid());
+        menuDao.insert(menu);
         platformService.clearMenuCache();
         return menu.getId();
     }
 
-    public void deleteMenu(Long menuId) {
+    public void deleteMenu(String menuId) {
         deleteMenuId(menuId);
     }
 
-    public void batchDeleteMenuId(List<Long> menuIds) {
-        for (Long id : menuIds) {
+    public void batchDeleteMenuId(List<String> menuIds) {
+        for (String id : menuIds) {
             deleteMenuId(id);
         }
         platformService.clearMenuCache();
@@ -68,7 +70,7 @@ public class MenuConsoleService extends CoreBaseService<CoreMenu> {
     }
 
 
-    private void deleteMenuId(Long menuId) {
+    private void deleteMenuId(String menuId) {
         MenuItem root = platformService.buildMenu();
         MenuItem fun = root.findChild(menuId);
         List<MenuItem> all = fun.findAllItem();
@@ -78,7 +80,7 @@ public class MenuConsoleService extends CoreBaseService<CoreMenu> {
     }
 
     private void realDeleteMenu(List<MenuItem> all) {
-        List<Long> ids = new ArrayList<>(all.size());
+        List<String> ids = new ArrayList<>(all.size());
         for (MenuItem item : all) {
             ids.add(item.getId());
             this.menuDao.deleteById(item.getId());

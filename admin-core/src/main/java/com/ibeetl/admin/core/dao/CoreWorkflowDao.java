@@ -20,5 +20,5 @@ public interface CoreWorkflowDao extends BaseMapper {
      * @param orgs   机构id
      * @return
      */
-    List<CoreUser> queryUsersByRole(Long roleId, List<Long> orgs);
+    List<CoreUser> queryUsersByRole(String roleId, List<String> orgs);
 }

@@ -1,6 +1,10 @@
 package com.ibeetl.admin.core.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.beetl.ext.fn.StringUtil;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,5 +35,17 @@ public class ConvertUtil {
 			
 		}
 		return rets;
+	}
+
+	/**
+	 * 按照逗号分隔的字符串转化为字符串列表
+	 * @param str
+	 * @return
+	 */
+	public static List<String> str2Strs(String str){
+		if(StringUtils.isBlank(str)){
+			return new ArrayList<>();
+		}
+		return Arrays.asList(str.split(","));
 	}
 }

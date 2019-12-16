@@ -17,7 +17,7 @@ class LocalFileItem extends PersistFileItem{
     public LocalFileItem(String root) {
         this.root = root;
     }
-    public OutputStream openOutpuStream() {
+    public OutputStream openOutputStream() {
         File file = new File(root + File.separator + path);
         try {
             if(!file.exists()) {

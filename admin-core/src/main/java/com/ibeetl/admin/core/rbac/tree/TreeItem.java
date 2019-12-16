@@ -8,6 +8,6 @@ import java.util.List;
  */
 public interface TreeItem extends java.io.Serializable {
 	public String getName();
-	public Long getId();
+	public String getId();
 	public List getChildren();
 }

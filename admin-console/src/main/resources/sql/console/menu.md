@@ -1,5 +1,5 @@
 
-queryByCondtion
+queryByCondition
 ===============
 * 根据条件查询
 

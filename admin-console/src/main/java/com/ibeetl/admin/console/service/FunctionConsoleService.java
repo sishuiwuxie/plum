@@ -3,7 +3,10 @@ package com.ibeetl.admin.console.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
+import com.ibeetl.admin.core.util.UUIDUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.beetl.sql.core.engine.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,16 +45,16 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	CorePlatformService platformService;
 	
 	
-	public void queryByCondtion(PageQuery<CoreFunction> query) {
-		functionDao.queryByCondtion(query);
+	public void queryByCondition(PageQuery<CoreFunction> query) {
+		functionDao.queryByCondition(query);
 		List<CoreFunction> list = query.getList();
 		this.queryListAfter(list);
 		//处理父功能名称显示
 		FunctionItem root = platformService.buildFunction();
         for(CoreFunction function:list) {
-        	Long parentId = function.getParentId();
+	        String parentId = function.getParentId();
         	String name = "";
-        	if(parentId != 0) {
+        	if(StringUtils.isNoneBlank(parentId )) {
         		FunctionItem item = root.findChild(parentId);
             	name = item!=null?item.getName():"";
         	}
@@ -61,9 +64,9 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	}
 	
 	
-	public Long saveFunction(CoreFunction function){
+	public String saveFunction(CoreFunction function){
 		
-		functionDao.insert(function,true);
+		functionDao.insert(function);
 		platformService.clearFunctionCache();
 		return  function.getId();
 	}
@@ -74,15 +77,15 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	 * @param functionId
 	 * @return
 	 */
-	public void deleteFunction(Long functionId){
+	public void deleteFunction(String functionId){
 		deleteFunctionId(functionId);
 		platformService.clearFunctionCache();
 		
 	}
 	
 	
-	public void batchDeleteFunction(List<Long> functionIds){
-		for(Long id:functionIds){
+	public void batchDeleteFunction(List<String> functionIds){
+		for(String id:functionIds){
 			deleteFunctionId(id);
 		}
 		platformService.clearFunctionCache();
@@ -111,7 +114,7 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	 * @param roleId
 	 * @return
 	 */
-	public List<Long> getFunctionByRole(Long roleId){
+	public List<String> getFunctionByRole(String roleId){
 		return this.roleFunctionConsoleDao.getFunctionIdByRole(roleId);
 	}
 	
@@ -120,18 +123,17 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	 * @param roleId
 	 * @return
 	 */
-	public List<RoleDataAccessFunction> getQueryFunctionByRole(Long roleId){
+	public List<RoleDataAccessFunction> getQueryFunctionByRole(String roleId){
 		return this.roleFunctionConsoleDao.getQueryFunctionAndRoleData(roleId);
 	}
 	/**
 	 * 更新角色对应的功能点所有,
-	 * @param roleId
-	 * @param data，必须包含id,和 dataAcerssType，采用模板更新
+ 	 * @param data，必须包含id,和 dataAcerssType，采用模板更新
 	 */
 	public void updateFunctionAccessByRole(List<RoleDataAccessFunction> data ){
 		for(RoleDataAccessFunction fun:data){
-			Long roleId = fun.getRoleId();
-			Long functionId = fun.getId();
+			String roleId = fun.getRoleId();
+			String functionId = fun.getId();
 			int accessType= fun.getDataAccessType();
 			
 			CoreRoleFunction template = new CoreRoleFunction();
@@ -144,6 +146,7 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 			}else {
 				template.setDataAccessType(accessType);
 				template.setCreateTime(new Date());
+				template.setId(UUIDUtil.uuid());
 				roleFunctionConsoleDao.insert(template);
 			}
 			
@@ -152,13 +155,13 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	
 	
 	/** 给角色赋予功能同时，根据赋予的功能权限，更新能访问的菜单
+	 * @param roleId
 	 * @param adds
-	 * @param updates
 	 * @param dels
 	 * @return  返回增加的项的id，用于前端
 	 */
-	public void updateSysRoleFunction(Long roleId,List<Long> adds,List<Long> dels){
-		for(Long del:dels){
+	public void updateSysRoleFunction(String roleId,List<String> adds,List<String> dels){
+		for(String del:dels){
 			//获得功能关联的菜单
 			CoreRoleFunction temp = new CoreRoleFunction();
 			temp.setRoleId(roleId);
@@ -181,7 +184,7 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 		
 		
 			
-		for(Long add:adds){
+		for(String add:adds){
 			CoreRoleFunction function = new CoreRoleFunction();
 			function.setCreateTime(new Date());
 			function.setRoleId(roleId);
@@ -193,17 +196,17 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 				CoreRoleMenu roleMenu = new CoreRoleMenu();
 				roleMenu.setMenuId(menu.getId());
 				roleMenu.setRoleId(roleId);
+				roleMenu.setId(UUIDUtil.uuid());
 				sysRoleMenuDao.insert(roleMenu);
 			}
 		}
 		
-		//清楚缓存
-		platformService.clearFunctionCache();
+ 		platformService.clearFunctionCache();
 			
 	}
 	
 	
-	private CoreMenu queryFunctionMenu(Long functionId){
+	private CoreMenu queryFunctionMenu(String functionId){
 		CoreMenu query = new CoreMenu();
 		query.setFunctionId(functionId);
 		List<CoreMenu> menus = menuDao.template(query);
@@ -211,7 +214,7 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	}
 	
 	
-	private CoreRoleMenu querySysRoleMenu(Long roleId,Long menuId){
+	private CoreRoleMenu querySysRoleMenu(String roleId,String menuId){
 		CoreRoleMenu query= new CoreRoleMenu();
 		query.setMenuId(menuId);
 		query.setRoleId(roleId);		
@@ -224,7 +227,7 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	 * 删除某一个功能点及其子功能，对应的role-function 需要删除，菜单对应的function需要设置成空
 	 * @param functionId
 	 */
-	private void deleteFunctionId(Long functionId){
+	private void deleteFunctionId(String functionId){
 		FunctionItem root = platformService.buildFunction();
 		FunctionItem fun = root.findChild(functionId);
 		List<FunctionItem> all = fun.findAllItem();
@@ -234,7 +237,7 @@ public class FunctionConsoleService  extends CoreBaseService<CoreFunction> {
 	}
 	
 	private void realDeleteFunction(List<FunctionItem> all){
-		List<Long> ids = new ArrayList<>(all.size());
+		List<String> ids = new ArrayList<>(all.size());
 		for(FunctionItem item:all){
 			ids.add(item.getId());
 			this.functionDao.deleteById(item.getId());

@@ -8,22 +8,22 @@ import com.ibeetl.admin.core.web.query.PageParam;
  * 描述: 带有组织树相关的查询
  */
 public class OrgTreeQuery extends PageParam {
-    protected Long orgId; //组织id
-    protected List<Long> orgIds;
+    protected String orgId; //组织id
+    protected List<String> orgIds;
 
-    public Long getOrgId() {
+    public String getOrgId() {
         return orgId;
     }
 
-    public void setOrgId(Long orgId) {
+    public void setOrgId(String orgId) {
         this.orgId = orgId;
     }
 
-    public List<Long> getOrgIds() {
+    public List<String> getOrgIds() {
         return orgIds;
     }
 
-    public void setOrgIds(List<Long> orgIds) {
+    public void setOrgIds(List<String> orgIds) {
         this.orgIds = orgIds;
     }
 }

@@ -26,23 +26,22 @@ layui.define([ 'form', 'laydate', 'table' ], function(exports) {
                         type : 'checkbox',
                         fixed:'left',
                     },
-                @for(attr in entity.list){
+                    @for(attr in entity.list){
             @if(attr.name=="delFlag"){continue;}
-                    @if(attr.name=="version"){continue;}
-                    @if(attr.name=="attachmentId"){continue;}
+            @if(attr.name=="version"){continue;}
+            @if(attr.name=="attachmentId"){continue;}
                 {
-
                     field : '${isEmpty(attr.dictType)?attr.name:(attr.name+"Text")}', ${isNotEmpty(attr.dictType)?"//数据字典类型为 "+attr.dictType}
                         title : '${attr.displayName}',
                     @if(attrLP.first){
                     fixed:'left',
                         width : 60,
-                    @}
-                    @if(attr.javaType=="date"){
+                        @}
+                @if(attr.javaType=="date"){
                     templet:function(d){
                         return Common.getDate(d.${attr.name});
                     }
-                    @}
+                @}
                 }${!attrLP.last?","}
             @}
 
@@ -103,7 +102,7 @@ layui.define([ 'form', 'laydate', 'table' ], function(exports) {
                     var url = "/core/file/simpleUpload.do?uploadUrl="+uploadUrl+"&templatePath="+templatePath;
                     Common.openDlg(url, "${entity.displayName}管理>上传");
                 }
-                @}
+            @}
         };
             $('.ext-toolbar').on('click', function() {
                 var type = $(this).data('type');

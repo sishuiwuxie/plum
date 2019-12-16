@@ -1,5 +1,5 @@
 
-queryByCondtion
+queryByCondition
 ===
 
     select 

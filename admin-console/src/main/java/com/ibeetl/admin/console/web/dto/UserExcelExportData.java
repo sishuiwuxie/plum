@@ -11,7 +11,7 @@ import com.ibeetl.admin.core.annotation.Dict;
  *
  */
 public class UserExcelExportData  {
-	protected Long id;
+	protected String id;
 	private String code;
 	private String name;
 	private String orgText;
@@ -54,10 +54,10 @@ public class UserExcelExportData  {
 	public void setJobType1Text(String jobType1Text) {
 		this.jobType1Text = jobType1Text;
 	}
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	

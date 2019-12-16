@@ -15,7 +15,7 @@ public interface   DataAccessFactory {
 	/**
 	 * 得到用户能看到得到组织机构树，比如，用户只能看到公司级别的组织机构树。
 	 * DefaultDataAccessFactory 默认实现了能看到所在公司（集团，母公司）的组织机构树
-	 * @param OrgItem
+	 * @param item
 	 * @return
 	 */
 	public OrgItem getUserOrgTree(OrgItem item) ;

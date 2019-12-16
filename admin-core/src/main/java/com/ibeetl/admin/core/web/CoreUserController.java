@@ -1,16 +1,5 @@
 package com.ibeetl.admin.core.web;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.ibeetl.admin.core.conf.PasswordConfig.PasswordEncryptService;
 import com.ibeetl.admin.core.entity.CoreOrg;
 import com.ibeetl.admin.core.entity.CoreUser;
@@ -24,13 +13,22 @@ import com.ibeetl.admin.core.util.HttpRequestLocal;
 import com.ibeetl.admin.core.web.dto.FunctionNodeView;
 import com.ibeetl.admin.core.web.dto.MenuNodeView;
 import com.ibeetl.admin.core.web.dto.SystemMenuView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Controller
 @SuppressWarnings("unchecked")
 public class CoreUserController {
-	private final Log log = LogFactory.getLog(this.getClass());
 	private static final String MODEL = "/core/user";
-
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	CorePlatformService platformService;
 
@@ -40,24 +38,21 @@ public class CoreUserController {
 	@Autowired
 	HttpRequestLocal httpRequestLocal;
 
-
-
-	
 	@Autowired
-	PasswordEncryptService passwordEncryptService ;
+	PasswordEncryptService passwordEncryptService;
 
 	@PostMapping(MODEL + "/login.json")
 	@ResponseBody
 	public JsonResult<UserLoginInfo> login(String code, String password) {
 		UserLoginInfo info = userService.login(code, password);
 		if (info == null) {
-			
+
 			return JsonResult.failMessage("用户名密码错");
 		}
 		CoreUser user = info.getUser();
 		CoreOrg currentOrg = info.getOrgs().get(0);
 		for (CoreOrg org : info.getOrgs()) {
-			if (org.getId() == user.getOrgId()) {
+			if (org.getId().equals(user.getOrgId())) {
 				currentOrg = org;
 				break;
 			}
@@ -71,7 +66,7 @@ public class CoreUserController {
 
 	/**
 	 * 用户所在部门
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/myOrgs.json")
@@ -84,14 +79,14 @@ public class CoreUserController {
 
 	/**
 	 * 切换部门
-	 * 
-	 * @param code
+	 *
+	 * @param orgId
 	 * @param orgId
 	 * @return
 	 */
 	@PostMapping(MODEL + "/setOrg.json")
 	@ResponseBody
-	public JsonResult login(Long orgId) {
+	public JsonResult login(String orgId) {
 
 		CoreUser user = platformService.getCurrentUser();
 
@@ -99,7 +94,7 @@ public class CoreUserController {
 		List<CoreOrg> orgs = platformService.getCurrentOrgs();
 		CoreOrg currentOrg = null;
 		for (CoreOrg org : orgs) {
-			if (orgId == org.getId()) {
+			if (orgId.equals(org.getId())) {
 				currentOrg = org;
 				break;
 			}
@@ -132,14 +127,14 @@ public class CoreUserController {
 
 	/**
 	 * 用户能查看的菜单
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/menu/menuTree.json")
 	@ResponseBody
 	public JsonResult<List<MenuNodeView>> menus() {
 		CoreUser currentUser = platformService.getCurrentUser();
-		Long orgId = platformService.getCurrentOrgId();
+		String orgId = platformService.getCurrentOrgId();
 		MenuItem item = platformService.getMenuItem(currentUser.getId(), orgId);
 		List<MenuNodeView> view = this.build(item);
 		return JsonResult.success(view);
@@ -147,33 +142,33 @@ public class CoreUserController {
 
 	/**
 	 * 获取系统
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/menu/system.json")
 	@ResponseBody
 	public JsonResult<List<SystemMenuView>> getSystem() {
 		CoreUser currentUser = platformService.getCurrentUser();
-		Long orgId = platformService.getCurrentOrgId();
+		String orgId = platformService.getCurrentOrgId();
 		MenuItem menuItem = platformService.getMenuItem(currentUser.getId(), orgId);
 		List<MenuItem> list = menuItem.getChildren();
 		List<SystemMenuView> systems = new ArrayList<SystemMenuView>();
 		for (MenuItem item : list) {
 			systems.add(new SystemMenuView(item.getId(), item.getData().getCode(), item.getData().getName()));
 		}
-		return 	JsonResult.success(systems);
+		return JsonResult.success(systems);
 	}
 
 	/**
 	 * 获取系统对应的菜单树
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/menu/systemMenu.json")
 	@ResponseBody
-	public JsonResult<List<MenuNodeView>> getMenuBySystem(long systemId) {
+	public JsonResult<List<MenuNodeView>> getMenuBySystem(String systemId) {
 		CoreUser currentUser = platformService.getCurrentUser();
-		Long orgId = platformService.getCurrentOrgId();
+		String orgId = platformService.getCurrentOrgId();
 		MenuItem menuItem = platformService.getMenuItem(currentUser.getId(), orgId);
 		MenuItem item = menuItem.findChild(systemId);
 		List<MenuNodeView> view = this.build(item);
@@ -182,7 +177,7 @@ public class CoreUserController {
 
 	/**
 	 * 用户所在公司的组织机构树
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/org.json")
@@ -194,7 +189,7 @@ public class CoreUserController {
 
 	/**
 	 * 获取系统的菜单树
-	 * 
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/menu/tree.json")
@@ -204,20 +199,21 @@ public class CoreUserController {
 		List<MenuNodeView> view = this.build(menuItem);
 		return JsonResult.success(view);
 	}
+
 	/**
 	 * 获取功能点树
+	 *
 	 * @return
 	 */
 	@PostMapping(MODEL + "/function/tree.json")
-    @ResponseBody
-    public JsonResult<List<FunctionNodeView> > getFunctionTree() {
-    		FunctionItem root = this.platformService.buildFunction();
-    		List<FunctionNodeView> tree = buildFunctionTree(root);
-    		return JsonResult.success(tree);
-       
-    }
+	@ResponseBody
+	public JsonResult<List<FunctionNodeView>> getFunctionTree() {
+		FunctionItem root = this.platformService.buildFunction();
+		List<FunctionNodeView> tree = buildFunctionTree(root);
+		return JsonResult.success(tree);
 
-	
+	}
+
 	private List<MenuNodeView> build(MenuItem node) {
 		List<MenuItem> list = node.getChildren();
 		if (list.size() == 0) {
@@ -239,24 +235,24 @@ public class CoreUserController {
 		}
 		return views;
 	}
-	
-    private List<FunctionNodeView> buildFunctionTree(FunctionItem node){
-  		List<FunctionItem> list = node.getChildren();
-      	if(list.size()==0){
-      		return Collections.EMPTY_LIST;
-      	}
-      	List<FunctionNodeView> views = new ArrayList<FunctionNodeView>(list.size());
-      	for(FunctionItem item :list){
-      		FunctionNodeView view = new FunctionNodeView();
-      		view.setCode(item.getData().getCode());
-      		view.setName(item.getData().getName());
-      		view.setId(item.getData().getId());
-      		view.setAccessUrl(item.getData().getAccessUrl());
-      		List<FunctionNodeView> children = this.buildFunctionTree(item);
-      		view.setChildren(children);
-      		views.add(view);
-      	}
-      	return views;
-     }
+
+	private List<FunctionNodeView> buildFunctionTree(FunctionItem node) {
+		List<FunctionItem> list = node.getChildren();
+		if (list.size() == 0) {
+			return Collections.EMPTY_LIST;
+		}
+		List<FunctionNodeView> views = new ArrayList<FunctionNodeView>(list.size());
+		for (FunctionItem item : list) {
+			FunctionNodeView view = new FunctionNodeView();
+			view.setCode(item.getData().getCode());
+			view.setName(item.getData().getName());
+			view.setId(item.getData().getId());
+			view.setAccessUrl(item.getData().getAccessUrl());
+			List<FunctionNodeView> children = this.buildFunctionTree(item);
+			view.setChildren(children);
+			views.add(view);
+		}
+		return views;
+	}
 
 }

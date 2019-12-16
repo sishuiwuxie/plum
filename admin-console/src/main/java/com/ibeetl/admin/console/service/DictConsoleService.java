@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ibeetl.admin.core.util.UUIDUtil;
 import org.apache.poi.ss.util.CellReference;
 import org.beetl.sql.core.engine.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class DictConsoleService extends CoreBaseService<CoreDict> {
         return ret;
     }
 
-    public void batchDelCoreDict(List<Long> ids){
+    public void batchDelCoreDict(List<String> ids){
         try {
         	//TODO,找到数据字典所有子类，设置删除标记
             dictDao.batchDelCoreDictByIds(ids);
@@ -74,11 +75,11 @@ public class DictConsoleService extends CoreBaseService<CoreDict> {
                if(parentItem==null) {
                    //硬编码，TODO,用reader缺少校验，替换手写导入
                    int row = item.getExcelId()+dataStartRow;
-                   throwImporError(row,5,"未找到父字典");
+                   throwImportError(row,5,"未找到父字典");
                }
                if(parentItem.getId()==null) {
                    int row = item.getExcelId()+dataStartRow;
-                   throwImporError(row,5,"父字典未被导入，请先导入父字典");
+                   throwImportError(row,5,"父字典未被导入，请先导入父字典");
                }
                dict.setParent(parentItem.getId());
            }
@@ -90,8 +91,9 @@ public class DictConsoleService extends CoreBaseService<CoreDict> {
            CoreDict dbDict = dictDao.templateOne(template);
            if(dbDict!=null) {
                int row = item.getExcelId()+dataStartRow;
-               throwImporError(row,0,"字典数据已经存在");
+               throwImportError(row,0,"字典数据已经存在");
            }
+           dict.setId(UUIDUtil.uuid());
            dictDao.insert(dict);
            
            item.setId(dict.getId());
@@ -101,7 +103,7 @@ public class DictConsoleService extends CoreBaseService<CoreDict> {
        
     }
     
-    private void throwImporError(int row,int col,String msg) {
+    private void throwImportError(int row, int col, String msg) {
         ExcelError error = new ExcelError();
         CellReference cr = new CellReference(row,col,false,false);
         error.setCell(cr.formatAsString());
