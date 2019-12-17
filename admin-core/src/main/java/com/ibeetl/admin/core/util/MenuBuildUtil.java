@@ -15,7 +15,7 @@ public class MenuBuildUtil {
 
 	public static MenuItem buildMenuTree(List<CoreMenu> list) {
 		CoreMenu root = new CoreMenu();
-		root.setId("");
+		root.setId("0");
 		root.setType("");
 		root.setName("主菜单");
 		MenuItem rootMenu = new MenuItem(root);

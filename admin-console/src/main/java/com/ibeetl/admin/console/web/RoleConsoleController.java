@@ -13,6 +13,7 @@ import com.ibeetl.admin.core.entity.CoreUser;
 import com.ibeetl.admin.core.service.CorePlatformService;
 import com.ibeetl.admin.core.util.AnnotationUtil;
 import com.ibeetl.admin.core.util.ConvertUtil;
+import com.ibeetl.admin.core.util.UUIDUtil;
 import com.ibeetl.admin.core.util.ValidateConfig;
 import com.ibeetl.admin.core.web.JsonResult;
 import org.apache.commons.lang3.StringUtils;
@@ -144,6 +145,7 @@ public class RoleConsoleController {
 		}
 		JsonResult result = new JsonResult();
 		role.setCreateTime(new Date());
+		role.setId( UUIDUtil.uuid() );
 		roleConsoleService.save(role);
 		platformService.clearFunctionCache();
 		return result.success();

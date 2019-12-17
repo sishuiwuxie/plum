@@ -9,6 +9,7 @@ import com.ibeetl.admin.core.rbac.tree.MenuItem;
 import com.ibeetl.admin.core.service.CorePlatformService;
 import com.ibeetl.admin.core.util.AnnotationUtil;
 import com.ibeetl.admin.core.util.ConvertUtil;
+import com.ibeetl.admin.core.util.UUIDUtil;
 import com.ibeetl.admin.core.web.JsonResult;
 import org.beetl.sql.core.engine.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +99,7 @@ public class MenuController {
 	@ResponseBody
 	public JsonResult save(@Validated CoreMenu menu) {
 		menu.setCreateTime(new Date());
+		menu.setId( UUIDUtil.uuid() );
 		String id = menuService.saveMenu(menu);
 		return JsonResult.success(id);
 	}
