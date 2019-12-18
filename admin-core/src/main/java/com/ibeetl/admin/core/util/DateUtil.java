@@ -7,11 +7,16 @@ import java.util.Date;
 public class DateUtil {
     
     public static Date MAX_DATE = maxDate();
-   
-    
-    
+
+
+
     public static String now() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(new Date());
+    }
+
+    public static String nowTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(new Date());
     }
     

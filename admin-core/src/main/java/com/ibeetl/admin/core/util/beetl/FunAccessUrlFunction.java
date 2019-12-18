@@ -22,6 +22,9 @@ public class FunAccessUrlFunction implements Function {
 	public Object call(Object[] paras, Context ctx) {
 		FunctionItem tree = platFormService.buildFunction();
 		FunctionItem item = tree.findChild((String)paras[0]);
+		if (null==item||null==item.getData()){
+			return "暂无";
+		}
 		return item.getData().getAccessUrl();
 		
 	}
