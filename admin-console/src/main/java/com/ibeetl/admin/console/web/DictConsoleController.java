@@ -11,6 +11,7 @@ import com.ibeetl.admin.core.file.FileService;
 import com.ibeetl.admin.core.service.CorePlatformService;
 import com.ibeetl.admin.core.util.ConvertUtil;
 import com.ibeetl.admin.core.util.PlatformException;
+import com.ibeetl.admin.core.util.UUIDUtil;
 import com.ibeetl.admin.core.util.ValidateConfig;
 import com.ibeetl.admin.core.web.JsonResult;
 import org.beetl.sql.core.engine.PageQuery;
@@ -87,6 +88,7 @@ public class DictConsoleController {
 	@Function("dict.add")
 	@ResponseBody
 	public JsonResult add(@Validated(ValidateConfig.ADD.class) CoreDict dict) {
+		dict.setId( UUIDUtil.uuid() );
 		dict.setCreateTime(new Date());
 		dictService.save(dict);
 		platformService.clearDictCache();
